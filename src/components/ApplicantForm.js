@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import {
   Form,
@@ -13,22 +13,51 @@ import {
 } from 'antd';
 import { TITLES, NATIONALITIES, GENDER } from '../helper/const';
 import ThaiFlag from '../assets/thailand.svg';
-import { addApplicant } from '../redux/actions';
+import { addApplicant, editApplicant } from '../redux/actions';
+import moment from 'moment';
 
 const { Option } = Select;
-const onlyNumber = new RegExp('^[0-9]*$');
 
-const ApplicantForm = () => {
+const ApplicantForm = ({
+  isEditing,
+  currentApplicant,
+  currentApplicantIndex,
+  reset,
+}) => {
+  const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const onFinish = () => {};
   const onFinishFailed = () => {};
 
   const handleOnFinish = (value) => {
-    dispatch(addApplicant(value));
+    if (!isEditing) {
+      dispatch(addApplicant(value));
+    } else {
+      dispatch(
+        editApplicant({
+          value,
+          index: currentApplicantIndex,
+        })
+      );
+      reset();
+    }
   };
 
+  useEffect(() => {
+    form.resetFields();
+  }, [currentApplicant]);
+
   return (
-    <Form onFinish={handleOnFinish} onFinishFailed={onFinishFailed}>
+    <Form
+      onFinish={handleOnFinish}
+      onFinishFailed={onFinishFailed}
+      form={form}
+      initialValues={
+        currentApplicant && {
+          ...currentApplicant,
+          birthday: moment(currentApplicant.birthday),
+        }
+      }
+    >
       <Row>
         <Col span={4}>
           <Form.Item
@@ -149,7 +178,7 @@ const ApplicantForm = () => {
           </Col>
           <Col span={2} offset={16}>
             <Button type='submit' htmlType='submit'>
-              Submit
+              {isEditing ? 'Update' : 'Submit'}
             </Button>
           </Col>
         </Row>

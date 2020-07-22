@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Table } from 'antd';
 import { useSelector, useDispatch } from 'react-redux';
-import { removeApplicant } from '../redux/actions';
+import { removeApplicant, clearAllApplicants } from '../redux/actions';
 
-const ApplicantTable = () => {
+const ApplicantTable = ({
+  setIsEditing,
+  setCurrentApplicant,
+  setCurrentApplicantIndex,
+}) => {
+  const applicants = useSelector((state) => state.applicants);
+
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const dispatch = useDispatch();
-  const onSelectChange = (selectedRowKeys) => {
-    console.log(selectedRowKeys);
-  };
 
   const columns = [
     {
@@ -39,14 +42,20 @@ const ApplicantTable = () => {
       key: 'key',
       render: (key) => (
         <span>
-          <a>Edit</a>/
-          <a onClick={() => dispatch(removeApplicant(key))}>Delete</a>
+          <a
+            onClick={() => {
+              setIsEditing(true);
+              setCurrentApplicant(applicants[key]);
+              setCurrentApplicantIndex(key);
+            }}
+          >
+            Edit
+          </a>
+          /<a onClick={() => dispatch(removeApplicant(key))}>Delete</a>
         </span>
       ),
     },
   ];
-
-  const applicants = useSelector((state) => state.applicants);
 
   const dataSource = [];
   applicants.forEach((a, i) =>
@@ -56,16 +65,24 @@ const ApplicantTable = () => {
     })
   );
 
+  const isNotEmpty = applicants.length !== 0;
+  const hasSelectedAll = applicants.length === selectedRowKeys.length;
+
   return (
-    <Table
-      columns={columns}
-      dataSource={dataSource}
-      rowSelection={{
-        type: 'checkbox',
-        selectedRowKeys,
-        onChange: (selectedRowKeys) => setSelectedRowKeys(selectedRowKeys),
-      }}
-    />
+    <>
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        rowSelection={{
+          type: 'checkbox',
+          selectedRowKeys,
+          onChange: (selectedRowKeys) => setSelectedRowKeys(selectedRowKeys),
+        }}
+      />
+      {hasSelectedAll && isNotEmpty && (
+        <a onClick={() => dispatch(clearAllApplicants())}>Delete all</a>
+      )}
+    </>
   );
 };
 
