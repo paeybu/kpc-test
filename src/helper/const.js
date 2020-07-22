@@ -1,6 +1,6 @@
 export const TITLES = [
   { value: 'mr', text: 'Mr.' },
-  { value: ' ms', text: 'Ms.' },
+  { value: 'ms', text: 'Ms.' },
   { value: 'mrs', text: 'Mrs.' },
   { value: 'other', text: 'Other' },
 ];
