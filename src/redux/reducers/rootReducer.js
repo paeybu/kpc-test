@@ -5,20 +5,22 @@ const initialState = JSON.parse(localStorage.getItem('applicants')) || {
 };
 
 const rootReducer = (state = initialState, action) => {
+  let newState;
   switch (action.type) {
     case ADD_APPLICANT:
-      const newState = {
+      newState = {
         applicants: [...state.applicants, action.applicant],
       };
       localStorage.setItem('applicants', JSON.stringify(newState));
       return newState;
     case REMOVE_APPLICANT:
-      console.log(
-        state.applicants.filter((applicant) => applicant !== action.index)
-      );
-    // const newState = {
-    //   applicants: state.applicants
-    // }
+      const { index } = action;
+      const { applicants } = state;
+      newState = {
+        applicants: applicants.filter((app) => app !== applicants[index]),
+      };
+      localStorage.setItem('applicants', JSON.stringify(newState));
+      return newState;
     default:
       return state;
   }
